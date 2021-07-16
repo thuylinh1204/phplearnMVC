@@ -1,4 +1,6 @@
-
+<?php
+    session_start();
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -39,27 +41,42 @@
 
 
     <!-- Custom styles for this template -->
-    <link href="signin.css" rel="stylesheet">
+    <link href="/css/signin.css" rel="stylesheet">
   </head>
   <body class="text-center">
 
 <main class="form-signin">
-  <form>
-    <img class="mb-4" src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
+  <form action="login-process.php" method="post">
+    <img class="mb-4" src="/img/bootstrap-logo.svg" alt="" width="72" height="57">
     <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
     <div class="form-floating">
-      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <input type="email" name="email" class="form-control <?php if(isset($_SESSION['errors']['email'])):?>is-invalid<?php endif?>"
+      id="floatingInput" placeholder="name@example.com"
+      value="<?php echo isset($_SESSION['data']['email']) ? $_SESSION['data']['email'] : '' ?>"
+      >
+      <?php if(isset($_SESSION['errors']['email'])):?>
+      <div id="validationServerUsernameFeedback" class="invalid-feedback">
+        <?php echo $_SESSION['errors']['email']?>
+      </div>
+      <?php endif?>
       <label for="floatingInput">Email address</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input type="password" name="password"
+      class="form-control <?php if(isset($_SESSION['errors']['password'])):?>is-invalid<?php endif?>"
+      id="floatingPassword" placeholder="Password" >
+      <?php if(isset($_SESSION['errors']['password'])):?>
+      <div id="validationServerUsernameFeedback" class="invalid-feedback">
+        <?php echo $_SESSION['errors']['password']?>
+      </div>
+      <?php endif?>
       <label for="floatingPassword">Password</label>
     </div>
 
     <div class="checkbox mb-3">
       <label>
-        <input type="checkbox" value="remember-me"> Remember me
+        <input type="checkbox" name="remember" value="yes"> Remember me
       </label>
     </div>
     <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
