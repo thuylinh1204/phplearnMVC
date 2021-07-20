@@ -1,3 +1,25 @@
+<?php
+session_start();
+if (isset($_GET['id'])){
+	include_once '../inc/connect_db.php';
+
+	$sql ="SELECT * FROM products WHERE id = ?;";
+	try{
+		// use exec() because no results are returned
+		$stmt = $conn->prepare($sql);
+		$stmt->execute([$_GET['id']]);
+
+	} catch(PDOException $e) {
+		die( $sql . "<br>" . $e->getMessage());
+	}
+
+	$product = $stmt->fetch(PDO::FETCH_OBJ);
+}else
+{
+	header("location: /admin/products/create.php");
+	exit;
+}
+  ?>
 
 <!doctype html>
 <html lang="en">
@@ -7,7 +29,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.84.0">
-    <title>CMS · Products</title>
+    <title>CMS · Update Product</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
 
@@ -141,89 +163,83 @@
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Products</h1>
+        <h1 class="h2">Update Products: </h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
-            <a  class="btn btn-sm btn-outline-secondary" href="/admin/products/create.php">Create new a product</a>
+            <a  class="btn btn-sm btn-outline-secondary" href="/admin/products/create.php">Save</a>
           </div>
         </div>
       </div>
 
-      <div class="table-responsive">
-        <table class="table table-striped table-sm">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Title</th>
-              <th scope="col">Photo</th>
-              <th scope="col">Price</th>
-              <th scope="col">Category</th>
-              <th scope="col" style="width: 10%">-</th>
-            </tr>
-          </thead>
-          <tbody>
-		  <?php
-			include_once '../inc/connect_db.php';
+        <form method="post" action="/admin/products/edit-process.php?id=<?php echo $_GET['id']?>">
+          <div class="row mb-3">
+            <label for="title" class="col-sm-2 col-form-label">Title</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control <?php if(isset($_SESSION['errors']['title'])):?>is-invalid<?php endif?>"
+              id="title" name="title" value="<?php echo isset($_SESSION['errors'])?$_SESSION['data']['title']:$product->title?>">
+              <?php if(isset($_SESSION['errors']['title'])):?>
+              <div class="invalid-feedback">
+                <?php echo $_SESSION['errors']['title']?>
+              </div>
+              <?php endif?>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="price" class="col-sm-2 col-form-label">Price</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control <?php if(isset($_SESSION['errors']['price'])):?>is-invalid<?php endif?>"
+              id="price" name="price" value="<?php echo isset($_SESSION['errors'])?$_SESSION['data']['price'] : $product->price?>">
+              <?php if(isset($_SESSION['errors']['price'])):?>
+              <div class="invalid-feedback">
+                <?php echo $_SESSION['errors']['price']?>
+              </div>
+              <?php endif?>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="description" class="col-sm-2 col-form-label">Description</label>
+            <div class="col-sm-10">
+              <textarea rows="8" cols="" class="form-control" id="description"
+              name="description"><?php echo $product->description?></textarea>
+            </div>
+          </div>
 
-			$sql ="SELECT * FROM products WHERE 1;";
-			try{
-				// use exec() because no results are returned
-				$stmt = $conn->prepare($sql);
-				$stmt->execute();
-
-			} catch(PDOException $e) {
-				die( $sql . "<br>" . $e->getMessage());
-			}
-
-			$row = $stmt->fetch(PDO::FETCH_OBJ);
-
-			do {
-		  ?>
-            <tr>
-              <td><?php echo $row->id; ?></td>
-              <td><?php echo $row->title; ?></td>
-              <td><?php echo $row->price; ?></td>
-              <td>placeholder</td>
-              <td><?php echo $row->description; ?></td>
-              <td>
-                <div class="btn-group" role="group" aria-label="Basic example">
-                  <a class="btn btn-primary" href="/admin/products/edit?id=<?php echo $row->id;?>">
-				  Edit
-				  </a>
-                  <button type="button" class="btn btn-success">Pushlish</button>
-                  <button type="button" class="delete btn btn-danger" data="<?php echo $row->id;?>">Delete</button>
-                </div>
-              </td>
-            </tr>
-			<?php
-			} while ($row = $stmt->fetch(PDO::FETCH_OBJ));
-			$conn = null; ?>
-          </tbody>
-        </table>
-      </div>
+          <fieldset class="row mb-3">
+            <legend class="col-form-label col-sm-2 pt-0">Radios</legend>
+            <div class="col-sm-10">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios1" value="option1" checked>
+                <label class="form-check-label" for="gridRadios1">
+                  First radio
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios2" value="option2">
+                <label class="form-check-label" for="gridRadios2">
+                  Second radio
+                </label>
+              </div>
+              <div class="form-check disabled">
+                <input class="form-check-input" type="radio" name="gridRadios" id="gridRadios3" value="option3" disabled>
+                <label class="form-check-label" for="gridRadios3">
+                  Third disabled radio
+                </label>
+              </div>
+            </div>
+          </fieldset>
+          <div class="row mb-3">
+            <div class="col-sm-10 offset-sm-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="gridCheck1">
+                <label class="form-check-label" for="gridCheck1">
+                  Example checkbox
+                </label>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
     </main>
-  </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form action="/admin/products/delete.php" method="post">
-      <input type="hidden" name="product_id" id="product_id" value="0">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Delete product!</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you want to delete this product?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-danger">Delete</button>
-      </div>
-      </form>
-    </div>
   </div>
 </div>
 
@@ -232,17 +248,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="text/javascript">
-      $('.delete').click(function(){
-          $('#product_id').val($(this).attr('data'))
-          var myModal = new bootstrap.Modal($('#deleteModal'),
-          {
-              keyboard: false
-          });
-          myModal.show();
-      });
-
-    </script>
   </body>
 </html>
