@@ -3,6 +3,7 @@ session_start();
 include_once '../inc/connect_db.php';
 // validate login
 $errors = [];
+
 if (isset($_POST))
 {
     if (empty($_POST['title']))
@@ -29,16 +30,31 @@ if (isset($_POST))
     unset($_SESSION['data']);
 
     $sql = <<<SQL
-    INSERT INTO products(title, price, description) VALUES (?, ?, ?);
+    INSERT INTO products(title, price, description, photo, published)
+VALUES (:title, :price, :description, :photo, :published);
 SQL;
-	
-	$data[] = $_POST['title'];
-	$data[] = $_POST['price'];
-	$data[] = $_POST['description'];
+
+	$data[':title'] = $_POST['title'];
+	$data[':price'] = (float) $_POST['price'];
+	$data[':description'] = $_POST['description'];
+	$data[':published'] = (int) $_POST['publish'];
+	$data[':photo'] = '';
+
+	if (isset($_FILES))
+	{
+	    $target_dir = "../../uploads/";
+	    $fileName = basename($_FILES["photo"]["name"]);
+	    $target_file = $target_dir . $fileName;
+
+	    if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+	        $data[':photo'] = $fileName;
+	    }
+	}
+
 	try{
 		$stmt= $conn->prepare($sql);
 		$stmt->execute($data);
-	} 
+	}
 	catch(PDOException $e) {
 		die( $sql . "<br>" . $e->getMessage());
 	}

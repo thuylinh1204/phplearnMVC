@@ -29,13 +29,33 @@ if (isset($_POST))
     unset($_SESSION['data']);
 
     $sql = <<<SQL
-    UPDATE products SET title=?, price=?, description=? WHERE id=?;
+    UPDATE products SET
+        title=:title,
+        price=:price,
+        description=:description,
+        published = :published,
+        photo = :photo
+    WHERE id = :id;
 SQL;
 
-	$data[] = $_POST['title'];
-	$data[] = $_POST['price'];
-	$data[] = $_POST['description'];
-	$data[] = $_GET['id'];
+	$data[':title'] = $_POST['title'];
+	$data[':price'] = $_POST['price'];
+	$data[':description'] = $_POST['description'];
+	$data[':published'] = (int) $_POST['publish'];
+	$data[':id'] = $_GET['id'];
+	$data[':photo'] = $_POST['old_photo'];
+
+	if (isset($_FILES['photo']))
+	{
+	    $target_dir = "../../uploads/";
+	    $fileName = basename($_FILES["photo"]["name"]);
+	    $target_file = $target_dir . $fileName;
+
+	    if (move_uploaded_file($_FILES["photo"]["tmp_name"], $target_file)) {
+	        $data[':photo'] = $fileName;
+	    }
+	}
+
 	try{
 		$stmt= $conn->prepare($sql);
 		$stmt->execute($data);
