@@ -1,55 +1,26 @@
 <?php
-session_start();
-if (isset($_SESSION['user']))
-{
-    echo "Hello Hanoi 2021!";
-}
-else{
+require_once "vendor/autoload.php";
+use App\Models\Order;
+use App\Models\Shipping;
+$order = new Order();
+$order->addItem('PHP begin', 10.0, 1);
+$order->addItem('PHP advance', 8.0, 1);
 
-$a = [
-    [
-        'id' 	=> 1,
-        'name' 	=> 'abc',
-        'model'	=> 'xxx',
-        'year' 	=> '2017',
-    ],
-    [
-        'id' 	=> 2,
-        'name' 	=> 'dbc',
-        'model'	=> '',
-        'year' 	=> '2017',
-    ],
-    [
-        'id' 	=> 3,
-        'name' 	=> 'dbc',
-        'model'	=> '',
-        'year' 	=> '2016',
-    ],
-    [
-        'id' 	=> 4,
-        'name' 	=> 'dbc',
-        'model'	=> '',
-        'year' 	=> '2018',
-    ]
-];
+$order->setTax(0.1);
 
-function checkEmpty($var)
-{
-    return !empty($var['model']);
-}
+$total = $order->getTotal();
 
-function sortByYear($a, $b)
-{
-    if ($a['year'] == $b['year']) {
-        return 0;
-    }
-    return ($a['year'] > $b['year']) ? -1 : 1;
-}
+echo $total;
 
+$shiping = new Shipping();
 
-//var_dump(array_filter($a, "checkEmpty"));
+$shiping->addItem('PHP begin', 10.0, 1);
+$shiping->addItem('PHP advance', 8.0, 1);
 
-usort($a, "sortByYear");
+$shiping->setTax(0.1);
+$shiping->setShiping(20);
 
-var_dump($a);
-}
+$total = $shiping->getTotal();
+
+echo "<br>";
+echo $total;
