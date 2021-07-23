@@ -2,4 +2,5 @@
 .project
 .buildpath
 vendor/
-compser.lock
+composer.lock
+.phpunit.result.cache
