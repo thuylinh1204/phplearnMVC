@@ -13,16 +13,24 @@ class Order
 
     public function addItem($id, $price, $quantity)
     {
+        if (empty($id))
+        {
+            return false;
+        }
+
         $this->items[] = array(
             'id' => $id,
             'price' => $price,
             'quantity' => $quantity
         );
+
+        return true;
     }
 
     public function setTax($tax)
     {
         $this->tax = $tax;
+        return $tax;
     }
 
     public function setDiscount($discount)
